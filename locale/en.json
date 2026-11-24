@@ -1,0 +1,7 @@
+{
+  "meta": {
+    "title": "Checklist mode",
+    "description": "Adds the /checklist command: a strict plan-and-follow mode with numbered steps, no rework of working parts, and a question to the user whenever a choice appears.",
+    "detail": "docs/DETAIL.en.md"
+  }
+}

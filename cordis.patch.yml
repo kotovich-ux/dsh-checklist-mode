@@ -1,0 +1,3 @@
+- insert:
+    - id: checklist-mode
+      name: 'dsh-checklist-mode'
