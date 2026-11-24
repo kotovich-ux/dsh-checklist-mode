@@ -1,7 +1,7 @@
 // Клиентская половина dsh-checklist-mode.
 //
 // Задача: в меню «Команды» строка /checklist должна выглядеть как штатные
-// команды — иконка, название на языке системы и (рядом) английское имя.
+// команды — иконка, название на языке интерфейса DSH и (рядом) английское имя.
 //
 // В DSH 2026-11 иконка и локализованное название есть только у встроенных
 // команд: клиент держит их в таблице HOST_FACES
@@ -57,32 +57,48 @@ window.__ModuleLoader__.load({
 			)
 		}
 
-		// Язык системы (navigator.language), как у штатных подписей меню.
-		const LANG = String(
-			(typeof navigator !== "undefined" && navigator.language) || "en",
-		).toLowerCase()
-		const RU = LANG.startsWith("ru")
-		const LABEL = RU ? "Чеклист" : "Checklist"
-		const DESCRIPTION = RU
-			? "Строгий режим: план по пунктам, без переделок, вопросы при выборе"
-			: "Strict mode: a numbered plan, one step at a time"
-
 		const COMMAND = "checklist"
 		const MARK = "__dshChecklistFace"
+		const NS = "checklist"
+
+		// Название и описание берём из словаря DSH по активному языку интерфейса
+		// (ctx.locale), а не из navigator.language: язык в DSH переключается в
+		// настройках и не обязан совпадать с языком системы. Русский/английский —
+		// то, что реально используется; zh — базовый локаль для остальных языков,
+		// которые падают на en.
+		const DICTIONARY = {
+			en: {
+				label: "Checklist",
+				description: "Strict mode: a numbered plan, one step at a time",
+			},
+			ru: {
+				label: "Чеклист",
+				description: "Строгий режим: план по пунктам, без переделок, вопросы при выборе",
+			},
+			zh: {
+				label: "清单模式",
+				description: "严格模式：编号计划，逐项执行",
+			},
+		}
 
 		/** Добавить нашей строке иконку и локализованное название; чужие строки не трогаем. */
-		function faceRows(rows) {
+		function faceRows(rows, t) {
 			if (!Array.isArray(rows)) return rows
 			let changed = false
 			const next = rows.map((row) => {
 				if (!row || row.name !== COMMAND || row.icon !== undefined) return row
 				changed = true
-				return { ...row, label: LABEL, description: DESCRIPTION, icon: ChecklistIcon }
+				return {
+					...row,
+					label: t("label"),
+					description: t("description"),
+					icon: ChecklistIcon,
+				}
 			})
 			return changed ? next : rows
 		}
 
-		exports.inject = ["commandUi"]
+		exports.inject = ["commandUi", "locale"]
 
 		exports.apply = (ctx) => {
 			const ui = ctx.commandUi
@@ -94,9 +110,17 @@ window.__ModuleLoader__.load({
 				)
 				return
 			}
+			ctx.effect(
+				() => ctx.locale.register(NS, DICTIONARY),
+				"dsh-checklist: dictionaries",
+			)
+			// bind возвращает стабильную функцию, читающую активный язык в момент
+			// вызова, поэтому смена языка в настройках DSH применяется к следующему
+			// открытию меню без перезагрузки страницы.
+			const t = ctx.locale.bind(NS)
 			if (original[MARK] === true) return
 			const wrapped = async function candidatesWithChecklistFace(...args) {
-				return faceRows(await original.apply(this, args))
+				return faceRows(await original.apply(this, args), t)
 			}
 			wrapped[MARK] = true
 			proto.candidates = wrapped

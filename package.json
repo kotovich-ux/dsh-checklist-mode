@@ -1,6 +1,6 @@
 {
   "name": "dsh-checklist-mode",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Strict checklist mode for DeepSeek Harness: /checklist adds a numbered-plan policy to the agent's system prompt and can send the task in one step.",
   "license": "MIT",

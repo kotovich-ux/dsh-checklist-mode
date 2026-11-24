@@ -46,7 +46,8 @@ Type `/` in the composer and pick **Checklist**, or type the command directly:
 | `/checklist off` | Turns the mode off. |
 
 The menu row shows an icon (a sheet with two lines: the first has a checked box, the second an
-empty one), a localized title (system language) and the English command name.
+empty one), a title in the DSH interface language (it follows the language picked in
+Settings → General and switches without a reload) and the English command name.
 
 ## How the menu row is made
 
@@ -56,9 +57,11 @@ contract covers fully client-side commands and behavioral decorations — neithe
 host command row.
 
 So the client half (`client.js`) wraps `CommandUiRuntime.candidates`, the single place where
-menu rows are assembled, and adds `label`/`description`/`icon` to its own `checklist` row.
-The wrap is deliberately soft: if a future DSH changes or renames that private method, the
-icon and title simply do not appear (a warning is logged), and the command keeps working.
+menu rows are assembled, and adds `label`/`description`/`icon` to its own `checklist` row. The
+label comes from a `checklist` locale namespace registered through `ctx.locale`, so it follows the
+language selected in DSH rather than the operating system language. The wrap is deliberately soft:
+if a future DSH changes or renames that private method, the icon and title simply do not appear
+(a warning is logged), and the command keeps working.
 
 If you are upgrading DSH beyond the range above, expect the cosmetic part to need a small
 update; `engines.dsh` states the tested range.

@@ -26,8 +26,8 @@ While the mode is active, a `checklist:policy` section is added to the agent's s
 ## How the menu row looks
 
 The `/checklist` row is dressed like the built-in commands: an icon (a sheet with two lines —
-the first with a checked box, the second with an empty one), a title in the system language, and
-the English command name.
+the first with a checked box, the second with an empty one), a title in the DSH interface language
+(it follows Settings → General and switches without a reload), and the English command name.
 
 This is done by the plugin's client half — [`client.js`](../client.js):
 
